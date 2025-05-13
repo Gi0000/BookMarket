@@ -1,6 +1,7 @@
 package com.example.bookmarket.domain;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 
@@ -16,6 +17,7 @@ public class Book {
     private long unitsInStock;
     private String releaseDate;
     private String condition;
-
+    private String fileName;
+    private MultipartFile bookImage;
 
 }
