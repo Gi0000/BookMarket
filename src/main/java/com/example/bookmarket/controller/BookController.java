@@ -5,6 +5,7 @@ import com.example.bookmarket.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -57,6 +58,26 @@ public class BookController {
         return "books";
     }
 
+    @GetMapping("/add")
+    public String requestAddBookForm() {
+        return "addBook";
+    }
 
+    @PostMapping("/add")
+    public String submitAddNewBook(@ModelAttribute Book book) {
+        bookService.setNewBook(book);
+        return "redirect:/books";
+    }
+
+    @ModelAttribute
+    public void addAttributes(Model model) {
+        model.addAttribute("addTitle", "신규 도서 등록");
+    }
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setAllowedFields("bookId", "name", "unitPrice", "author", "description", "publisher",
+                "category", "unitsInStock", "totalPages", "releaseDate", "condition");
+    }
 
 }
