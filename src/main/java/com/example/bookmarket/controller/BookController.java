@@ -2,12 +2,17 @@ package com.example.bookmarket.controller;
 
 import com.example.bookmarket.domain.Book;
 import com.example.bookmarket.service.BookService;
+import com.example.bookmarket.validator.BookValidator;
+import com.example.bookmarket.validator.UnitsInStockValidator;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +35,12 @@ public class BookController {
 
     @Value("${file.uploadDir")
     String fileDir;
+
+//    @Autowired
+//    private UnitsInStockValidator unitsInStockValidator;
+
+    @Autowired
+    private BookValidator bookValidator;
 
     @GetMapping
     public String requestBookLsit(Model model) {
@@ -71,12 +82,15 @@ public class BookController {
     }
 
     @GetMapping("/add")
-    public String requestAddBookForm() {
+    public String requestAddBookForm(Model model) {
+        model.addAttribute("book", new Book());
         return "addBook";
     }
 
     @PostMapping("/add")
-    public String submitAddNewBook(@ModelAttribute Book book) {
+    public String submitAddNewBook(@Valid @ModelAttribute Book book, BindingResult bindingResult) {
+        if(bindingResult.hasErrors())
+            return "addBook";
         MultipartFile bookImage = book.getBookImage();
         String saveName = bookImage.getOriginalFilename();
         File saveFile = new File(fileDir, saveName);
@@ -113,6 +127,8 @@ public class BookController {
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
+//        binder.setValidator((Validator) unitsInStockValidator);
+        binder.setValidator(bookValidator);
         binder.setAllowedFields("bookId", "name", "unitPrice", "author", "description", "publisher",
                 "category", "unitsInStock", "totalPages", "releaseDate", "condition", "bookImage");
     }
